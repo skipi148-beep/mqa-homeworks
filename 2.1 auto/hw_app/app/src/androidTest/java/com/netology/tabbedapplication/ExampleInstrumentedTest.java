@@ -1,26 +1,35 @@
 package com.netology.tabbedapplication;
 
-import android.content.Context;
-
-import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.espresso.Espresso;
+import androidx.test.espresso.action.ViewActions;
+import androidx.test.espresso.assertion.ViewAssertions;
+import androidx.test.espresso.matcher.ViewMatchers;
 
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.*;
-
-/**
- * Instrumented test, which will execute on an Android device.
- *
- * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
- */
 @RunWith(AndroidJUnit4.class)
 public class ExampleInstrumentedTest {
+
+    @Rule
+    public ActivityScenarioRule<MainActivity> activityRule =
+            new ActivityScenarioRule<>(MainActivity.class);
+
     @Test
-    public void useAppContext() {
-        // Context of the app under test.
-        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        assertEquals("com.netology.tabbedapplication", appContext.getPackageName());
+    public void testTabSwitching() {
+        // 1. Проверяем, что изначально активна вкладка "TAB 1" с надписью "Page: 1"
+        Espresso.onView(ViewMatchers.withText("Page: 1"))
+                .check(ViewAssertions.matches(ViewMatchers.isDisplayed()));
+
+        // 2. Нажимаем на вкладку "TAB 2"
+        Espresso.onView(ViewMatchers.withText("TAB 2"))
+                .perform(ViewActions.click());
+
+        // 3. Проверяем, что открылся экран с надписью "Page: 2"
+        Espresso.onView(ViewMatchers.withText("Page: 2"))
+                .check(ViewAssertions.matches(ViewMatchers.isDisplayed()));
     }
 }
