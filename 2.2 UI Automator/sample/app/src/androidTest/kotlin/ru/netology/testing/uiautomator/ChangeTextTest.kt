@@ -13,10 +13,8 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
-
 const val SETTINGS_PACKAGE = "com.android.settings"
 const val MODEL_PACKAGE = "ru.netology.testing.uiautomator"
-
 const val TIMEOUT = 5000L
 
 @RunWith(AndroidJUnit4::class)
@@ -24,52 +22,6 @@ class ChangeTextTest {
 
     private lateinit var device: UiDevice
     private val textToSet = "Netology"
-
-//    @Test
-//    fun testInternetSettings() {
-//        // Press home
-//        device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-//        device.pressHome()
-//
-//        // Wait for launcher
-//        val launcherPackage = device.launcherPackageName
-//        device.wait(Until.hasObject(By.pkg(launcherPackage)), TIMEOUT)
-//        waitForPackage(SETTINGS_PACKAGE)
-//
-//        val context = ApplicationProvider.getApplicationContext<Context>()
-//        val intent = context.packageManager.getLaunchIntentForPackage(SETTINGS_PACKAGE)
-//        context.startActivity(intent)
-//        device.wait(Until.hasObject(By.pkg(SETTINGS_PACKAGE)), TIMEOUT)
-//
-//        device.findObject(
-//            UiSelector().resourceId("android:id/title").instance(0)
-//        ).click()
-//    }
-
-//    @Test
-//    fun testChangeText() {
-//        // Press home
-//        device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-//        device.pressHome()
-//
-//        // Wait for launcher
-//        val launcherPackage = device.launcherPackageName
-//        device.wait(Until.hasObject(By.pkg(launcherPackage)), TIMEOUT)
-//        waitForPackage(SETTINGS_PACKAGE)
-//
-//        val context = ApplicationProvider.getApplicationContext<Context>()
-//        val packageName = context.packageName
-//        val intent = context.packageManager.getLaunchIntentForPackage(packageName)
-//        context.startActivity(intent)
-//        device.wait(Until.hasObject(By.pkg(packageName)), TIMEOUT)
-//
-//
-//        device.findObject(By.res(packageName, "userInput")).text = textToSet
-//        device.findObject(By.res(packageName, "buttonChange")).click()
-//
-//        val result = device.findObject(By.res(packageName, "textToBeChanged")).text
-//        assertEquals(result, textToSet)
-//    }
 
     private fun waitForPackage(packageName: String) {
         val context = ApplicationProvider.getApplicationContext<Context>()
@@ -110,7 +62,46 @@ class ChangeTextTest {
         assertEquals(result, textToSet)
     }
 
+    @Test
+    fun testSetEmptyStringDoesNotChangeText() {
+        val packageName = MODEL_PACKAGE
+        waitForPackage(packageName)
+
+        // 1. Запоминаем изначальный текст в TextView
+        val initialText = device.findObject(By.res(packageName, "textToBeChanged")).text
+
+        // 2. Находим поле ввода и устанавливаем пустую строку из пробелов
+        device.findObject(By.res(packageName, "userInput")).text = "   "
+
+        // 3. Нажимаем кнопку изменения текста
+        device.findObject(By.res(packageName, "buttonChange")).click()
+
+        // 4. Получаем обновленный текст из TextView
+        val updatedText = device.findObject(By.res(packageName, "textToBeChanged")).text
+
+        // 5. Проверяем, что текст НЕ изменился
+        assertEquals(initialText, updatedText)
+    }
+
+    @Test
+    fun testOpenTextInNewActivity() {
+        val packageName = MODEL_PACKAGE
+        waitForPackage(packageName)
+        val textToType = "Netology UI Automator"
+
+        // 1. Находим поле ввода и пишем непустой текст
+        device.findObject(By.res(packageName, "userInput")).text = textToType
+
+        // 2. Нажимаем кнопку открытия новой Activity
+        device.findObject(By.res(packageName, "buttonActivity")).click()
+
+        // 3. Ждем появления TextView из новой Activity по его ID (textActivity2)
+        device.wait(Until.hasObject(By.res(packageName, "textActivity2")), 5000)
+
+        // 4. Находим TextView на новом экране и берем его значение
+        val textInNewActivity = device.findObject(By.res(packageName, "textActivity2")).text
+
+        // 5. Проверяем совпадение текста
+        assertEquals(textToType, textInNewActivity)
+    }
 }
-
-
-
